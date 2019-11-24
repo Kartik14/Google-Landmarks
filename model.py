@@ -92,7 +92,7 @@ class LandmarkModel(nn.Module):
 
 
         x1 = self.pool1(x)
-        x1.squeeze_()
+        x1.squeeze_(-1).squeeze_(-1)
         x1 = self.dense1(x1)
         x1 = F.normalize(x1,dim=1)
         x1 = self.dropout(x1)

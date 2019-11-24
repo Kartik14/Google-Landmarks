@@ -25,26 +25,34 @@ class GrayscaleToRGB(object):
 
 class LandmarksDataset(Dataset):
 
-    def __init__(self, csv_file, root_dir, K=4):
+    def __init__(self, csv_file, root_dir, image_size=128, K=4, mode="train"):
 
         self.data_frame = pd.read_csv(csv_file)
         self.root_dir = root_dir
         self.K = K
         transform_list = [
-            transforms.Resize(128),
-            transforms.CenterCrop(128),
+            transforms.Resize(image_size),
+            transforms.CenterCrop(image_size)]
+
+        if mode == "train":
+          transform_list.extend([
+            transforms.RandomHorizontalFlip(),
             transforms.RandomChoice([
-                    transforms.RandomResizedCrop(128),
+                    transforms.RandomResizedCrop(image_size),
                     transforms.ColorJitter(0.2, 0.2, 0.2, 0.2),
                     transforms.RandomAffine(degrees=15, translate=(0.2, 0.2),
                                             scale=(0.8, 1.2), shear=15,
                                             resample=Image.BILINEAR)
-                ]),
+                ])
+            ])
+
+        transform_list.extend([
             transforms.ToTensor(),
             GrayscaleToRGB(),
             transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                  std=[0.229, 0.224, 0.225])
-        ]
+        ])
+
         self.transform = transforms.Compose(transform_list)
         
         self.landmark_to_class_id = {}

@@ -34,14 +34,14 @@ class BatchHardTripletSelector(object):
         lb_eqs = labels == labels.T
         lb_eqs[dia_inds] = False
         dist_same = dist_mtx.copy()
-        dist_same[lb_eqs == False] = np.inf
-        pos_idxs = np.argpartition(dist_same, 3, axis = 1)[:,:3]
-        pos_idxs = np.array([np.random.choice(pos_idxs[i,:]) for i in range(pos_idxs.shape[0])])
-        # pos_idxs = np.argmin(dist_same, axis = 1)
+        dist_same[lb_eqs == False] = -np.inf
+        # pos_idxs = np.argpartition(dist_same, 3, axis = 1)[:,:3]
+        # pos_idxs = np.array([np.random.choice(pos_idxs[i,:]) for i in range(pos_idxs.shape[0])])
+        pos_idxs = np.argmax(dist_same, axis = 1)
         dist_diff = dist_mtx.copy()
         lb_eqs[dia_inds] = True
         dist_diff[lb_eqs == True] = np.inf
-        neg_idxs = np.argmin(dist_diff, axis = 1) 
+        neg_idxs = np.argmin(dist_diff, axis = 1)
         pos = embeds[pos_idxs].contiguous().view(num, -1)
         neg = embeds[neg_idxs].contiguous().view(num, -1)
         return embeds, pos, neg
